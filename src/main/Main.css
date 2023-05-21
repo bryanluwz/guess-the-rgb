@@ -41,7 +41,7 @@
 }
 
 .gtr-ui-container {
-    width: 100%;
+    width: min(100%, 500px);
     height: 50%;
 }
 
@@ -58,7 +58,7 @@
 }
 
 .gtr-ui-buttons > button {
-    width: auto;
+    width: 8em;
     height: auto;
 
     margin: 0px 10px;
@@ -67,18 +67,25 @@
     outline: transparent;
     border: none;
     border-radius: 69420px;
-    background-color: var(--lavender-pastel-4);
+    background-color: var(--lavender-pastel-1);
 
     font: inherit;
+    color: white;
     font-size: var(--h4-font-size);
     font-family: var(--text-font);
+
+    transition: 0.4s ease;
+}
+
+.gtr-ui-buttons > button:hover {
+    background-color: var(--lavender-pastel-2);
 }
 
 .gtr-ui-input-container {
     width: 100%;
     height: auto;
 
-    margin: 10px 0px;
+    margin: 10px 0;
 
     display: inline-grid;
     grid-template-columns: repeat(3, minmax(100px, 1fr));
@@ -96,8 +103,8 @@
 }
 
 .gtr-ui-input > input {
-    width: 7em;
-    height: 7em;
+    width: 3.9em;
+    height: 3.9em;
 
     outline: transparent;
     border: none;
@@ -107,11 +114,15 @@
     text-align: center;
 
     transition: 0.4s ease;
+
+    font: inherit;
+    font-family: var(--text-font);
+    font-weight: bold;
+    font-size: var(--h1-font-size);
 }
 
 @media screen and (max-width: 600px) {
-    .gtr-ui-input > input {
-        width: 5em;
-        height: 5em;
+    .gtr-ui-input-container {
+        gap: 0.2em;
     }
 }
