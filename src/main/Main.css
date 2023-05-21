@@ -38,6 +38,22 @@
     right: 0;
 
     border-radius: 30px;
+
+    transition: 0.4s ease;
+}
+
+.gtr-subdisplay {
+    width: 4em;
+    height: 4em;
+
+    position: absolute;
+    margin: auto;
+    top: 12.5em;
+    left: 12.5em;
+    bottom: 0;
+    right: 0;
+
+    border-radius: 20px;
 }
 
 .gtr-ui-container {
@@ -75,6 +91,8 @@
     font-family: var(--text-font);
 
     transition: 0.4s ease;
+
+    cursor: pointer;
 }
 
 .gtr-ui-buttons > button:hover {
