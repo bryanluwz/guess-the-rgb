@@ -68,9 +68,13 @@ export default class Main extends Component {
 						b = this.decToHex(b);
 					}
 
+					var cssColor = "";
+					if (!(r === g && g === b && b === ""))
+						cssColor = this.createCSSColorStringFromRGBValue(r, g, b);
+
 					this.setState({
 						currentRGBValue: guessTheRGBData.currentRGBValue,
-						currentCSSColor: this.createCSSColorStringFromRGBValue(r, g, b),
+						currentCSSColor: cssColor,
 						r: r,
 						g: g,
 						b: b
@@ -285,7 +289,9 @@ export default class Main extends Component {
 
 		const { rArrowUp, rArrowDown, gArrowUp, gArrowDown, bArrowUp, bArrowDown } = RGBArrowsStyle;
 
-		if (result.deltaR >= mehThreshold) {
+		if (result.deltaR === "unset") {
+			;
+		} else if (result.deltaR >= mehThreshold) {
 			rArrowUp.color = this.arrowColor;
 			rArrowUp.visibility = "unset";
 		} else if (result.deltaR <= -veryGoodThreshold) {
@@ -293,7 +299,9 @@ export default class Main extends Component {
 			rArrowDown.visibility = "unset";
 		}
 
-		if (result.deltaG >= mehThreshold) {
+		if (result.deltaG === "unset") {
+			;
+		} else if (result.deltaG >= mehThreshold) {
 			gArrowUp.color = this.arrowColor;
 			gArrowUp.visibility = "unset";
 		} else if (result.deltaG <= -mehThreshold) {
@@ -301,7 +309,9 @@ export default class Main extends Component {
 			gArrowDown.visibility = "unset";
 		}
 
-		if (result.deltaB >= mehThreshold) {
+		if (result.deltaB === "unset") {
+			;
+		} else if (result.deltaB >= mehThreshold) {
 			bArrowUp.color = this.arrowColor;
 			bArrowUp.visibility = "unset";
 		} else if (result.deltaB <= -mehThreshold) {
@@ -340,9 +350,9 @@ export default class Main extends Component {
 
 		else {
 			return {
-				deltaR: targetRGB.r - currentRGB.r,
-				deltaG: targetRGB.g - currentRGB.g,
-				deltaB: targetRGB.b - currentRGB.b
+				deltaR: currentRGB.r === "" ? "unset" : targetRGB.r - currentRGB.r,
+				deltaG: currentRGB.g === "" ? "unset" : targetRGB.g - currentRGB.g,
+				deltaB: currentRGB.b === "" ? "unset" : targetRGB.b - currentRGB.b
 			};
 		}
 	};
