@@ -1,5 +1,6 @@
 import { Component } from "react";
 import { ContentDisplay } from "../components/others/";
+import { setCookieValue, getCookieValue } from "../components/utils/cookieMonster";
 
 export default class Main extends Component {
 	constructor(props) {
@@ -34,18 +35,74 @@ export default class Main extends Component {
 		};
 
 		this.arrowColor = "red";
+		this.cookieName = "guessTheRGB";
 	}
 
 	componentDidMount() {
-		const { r, g, b } = this.createRandomRGB();
-		this.setState({
-			targetRGBValue: { r: r, g: g, b: b },
-			targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
-		});
+		const guessTheRGBData = getCookieValue(this.cookieName);
+		if (guessTheRGBData) {
+			if (guessTheRGBData.targetRGBValue) {
+				const { r, g, b } = guessTheRGBData.targetRGBValue;
+				this.setState({
+					targetRGBValue: { r: r, g: g, b: b },
+					targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
+				});
+			}
+
+			if (guessTheRGBData.currentInputType) {
+				this.setState({ currentInputType: guessTheRGBData.currentInputType });
+			}
+
+			if (guessTheRGBData.currentRGBValue) {
+				// Need to set input to match also
+				var { r, g, b } = guessTheRGBData.currentRGBValue;
+				this.setState({ currentRGBValue: guessTheRGBData.currentRGBValue });
+
+				if (guessTheRGBData.currentInputType) {
+					if (guessTheRGBData.currentInputType === 'RGB') {
+						;
+					}
+					else if (guessTheRGBData.currentInputType === "Hex") {
+						r = this.decToHex(r);
+						g = this.decToHex(g);
+						b = this.decToHex(b);
+					}
+
+					this.setState({
+						currentRGBValue: guessTheRGBData.currentRGBValue,
+						currentCSSColor: this.createCSSColorStringFromRGBValue(r, g, b),
+						r: r,
+						g: g,
+						b: b
+					});
+				}
+			}
+		}
+		else {
+			const { r, g, b } = this.createRandomRGB();
+			this.setState({
+				targetRGBValue: { r: r, g: g, b: b },
+				targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
+			});
+			this.setThisCookieValue("targetRGBValue", { r: r, g: g, b: b });
+		}
 	}
+
+	// Set cookies value
+	setThisCookieValue = (key, value) => {
+		const data = getCookieValue(this.cookieName);
+		if (data) {
+			data[key] = value;
+			setCookieValue(this.cookieName, data);
+		}
+		else {
+			setCookieValue(this.cookieName, { [key]: value });
+		}
+	};
 
 	componentDidUpdate(prevProps, prevState) {
 		if (prevState.currentCSSColor !== this.state.currentCSSColor) {
+			this.setThisCookieValue("currentRGBValue", this.state.currentRGBValue);
 			this.handleSubmission();
 		}
 	}
@@ -71,7 +128,7 @@ export default class Main extends Component {
 		this.setState({
 			targetRGBValue: null,
 			targetCSSColor: null,
-			currentInputType: "RGB",
+
 			// Current
 			currentRGBValue: {
 				r: "",
@@ -102,6 +159,8 @@ export default class Main extends Component {
 			targetRGBValue: { r: r, g: g, b: b },
 			targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
 		});
+
+		this.setThisCookieValue("targetRGBValue", this.state.targetRGBValue);
 	};
 
 	// Handle change input button
@@ -119,6 +178,8 @@ export default class Main extends Component {
 				g: this.decToHex(g),
 				b: this.decToHex(b),
 			});
+
+			this.setThisCookieValue("currentInputType", "Hex");
 		}
 		else if (currentInputType === 'Hex') {
 			nextInputType = "RGB";
@@ -130,6 +191,8 @@ export default class Main extends Component {
 				g: this.hexToDec(g),
 				b: this.hexToDec(b),
 			});
+
+			this.setThisCookieValue("currentInputType", "RGB");
 		}
 	};
 
@@ -157,6 +220,8 @@ export default class Main extends Component {
 				currentRGBValue: currentRGBValue,
 				currentCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
 			});
+
+			this.setThisCookieValue("currentRGBValue", this.state.currentRGBValue);
 		}
 
 		else if (this.state.currentInputType === "Hex") {
@@ -179,6 +244,8 @@ export default class Main extends Component {
 				currentRGBValue: currentRGBValue,
 				currentCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
 			});
+
+			this.setThisCookieValue("currentRGBValue", this.state.currentRGBValue);
 		}
 	};
 
@@ -187,11 +254,13 @@ export default class Main extends Component {
 	}
 
 	hexToDec = (hex) => {
-		return parseInt(hex, 16);
+		var ret = parseInt(hex, 16);
+		return !isNaN(ret) ? ret : "";
 	};
 
 	decToHex = (dec) => {
-		return dec.toString(16).toUpperCase();
+		var ret = dec.toString(16).toUpperCase();
+		return ret;
 	};
 
 	// Handle submission
