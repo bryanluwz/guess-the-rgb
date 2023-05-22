@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/guess-the-rgb/static/css/main.1c2ef7cb.css",
+    "main.js": "/guess-the-rgb/static/js/main.30ab2a23.js",
+    "static/media/lulo-font.ttf": "/guess-the-rgb/static/media/lulo-font.cf6ce051896b18d3449b.ttf",
+    "index.html": "/guess-the-rgb/index.html",
+    "main.1c2ef7cb.css.map": "/guess-the-rgb/static/css/main.1c2ef7cb.css.map",
+    "main.30ab2a23.js.map": "/guess-the-rgb/static/js/main.30ab2a23.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1c2ef7cb.css",
+    "static/js/main.30ab2a23.js"
+  ]
+}
