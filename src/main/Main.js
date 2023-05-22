@@ -31,16 +31,20 @@ export default class Main extends Component {
 				gArrowDown: { color: "bla", visibility: "hidden" },
 				bArrowUp: { color: "bla", visibility: "hidden" },
 				bArrowDown: { color: "bla", visibility: "hidden" },
-			}
+			},
+
+			mode: "Normal"
 		};
 
-		this.arrowColor = "red";
+		this.mehArrowColor = "red";
+		this.closeArrowColor = "green";
 		this.cookieName = "guessTheRGB";
 
 		this.inputRefs = {
 			r: createRef(),
 			g: createRef(),
-			b: createRef()
+			b: createRef(),
+			submitButton: createRef()
 		};
 	}
 
@@ -53,6 +57,10 @@ export default class Main extends Component {
 					targetRGBValue: { r: r, g: g, b: b },
 					targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
 				});
+			}
+
+			if (guessTheRGBData.mode) {
+				this.setState({ mode: guessTheRGBData.mode });
 			}
 
 			if (guessTheRGBData.currentInputType) {
@@ -113,7 +121,8 @@ export default class Main extends Component {
 	componentDidUpdate(prevProps, prevState) {
 		if (prevState.currentCSSColor !== this.state.currentCSSColor) {
 			this.setThisCookieValue("currentRGBValue", this.state.currentRGBValue);
-			this.handleSubmission();
+			if (this.state.mode === 'Normal')
+				this.handleSubmission();
 		}
 	}
 
@@ -170,7 +179,22 @@ export default class Main extends Component {
 			targetCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
 		});
 
-		this.setThisCookieValue("targetRGBValue", this.state.targetRGBValue);
+		this.setThisCookieValue("targetRGBValue", { r: r, g: g, b: b });
+	};
+
+	// Handle change mode
+	handleChangeModeButton = () => {
+		const { mode } = this.state;
+		var nextMode = "foo";
+		if (mode.toLocaleLowerCase() === 'normal') {
+			nextMode = "Hard";
+		}
+		else {
+			nextMode = "Normal";
+		}
+
+		this.setState({ mode: nextMode });
+		this.setThisCookieValue("mode", nextMode);
 	};
 
 	// Handle change input button
@@ -207,11 +231,11 @@ export default class Main extends Component {
 	};
 
 	// Handle set RGB
-	setRGBValue = (evt, color) => {
+	setRGBValue = (evt, color, options = "none") => {
 		const inputValue = evt.target.value;
 
 		if (this.state.currentInputType === "RGB") {
-			const rgbInputValue = parseInt(inputValue);
+			const rgbInputValue = parseInt(inputValue) + (options === "inc" ? 1 : options === "dec" ? -1 : 0);
 			const { currentRGBValue } = this.state;
 
 			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") evt.preventDefault();
@@ -235,7 +259,7 @@ export default class Main extends Component {
 		}
 
 		else if (this.state.currentInputType === "Hex") {
-			const rgbInputValue = this.hexToDec(inputValue); // It is in hex now
+			const rgbInputValue = this.hexToDec(inputValue) + (options === "inc" ? 1 : options === "dec" ? -1 : 0); // It is in hex now
 			const { currentRGBValue } = this.state;
 
 			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") evt.preventDefault();
@@ -297,30 +321,30 @@ export default class Main extends Component {
 		if (result.deltaR === "unset") {
 			;
 		} else if (result.deltaR >= mehThreshold) {
-			rArrowUp.color = this.arrowColor;
+			rArrowUp.color = this.mehArrowColor;
 			rArrowUp.visibility = "unset";
 		} else if (result.deltaR <= -veryGoodThreshold) {
-			rArrowDown.color = this.arrowColor;
+			rArrowDown.color = this.mehArrowColor;
 			rArrowDown.visibility = "unset";
 		}
 
 		if (result.deltaG === "unset") {
 			;
 		} else if (result.deltaG >= mehThreshold) {
-			gArrowUp.color = this.arrowColor;
+			gArrowUp.color = this.mehArrowColor;
 			gArrowUp.visibility = "unset";
 		} else if (result.deltaG <= -mehThreshold) {
-			gArrowDown.color = this.arrowColor;
+			gArrowDown.color = this.mehArrowColor;
 			gArrowDown.visibility = "unset";
 		}
 
 		if (result.deltaB === "unset") {
 			;
 		} else if (result.deltaB >= mehThreshold) {
-			bArrowUp.color = this.arrowColor;
+			bArrowUp.color = this.mehArrowColor;
 			bArrowUp.visibility = "unset";
 		} else if (result.deltaB <= -mehThreshold) {
-			bArrowDown.color = this.arrowColor;
+			bArrowDown.color = this.mehArrowColor;
 			bArrowDown.visibility = "unset";
 		}
 
@@ -334,7 +358,7 @@ export default class Main extends Component {
 			success = true;
 		}
 		else if (result === "wonderful") {
-			userMessage = "🤩 wonderful!!";
+			userMessage = "🤩 wonderfully close";
 			success = true;
 		}
 		else if (result === "meh") {
@@ -398,6 +422,7 @@ export default class Main extends Component {
 						<div className="gtr-ui-container">
 							<div className="gtr-ui-buttons">
 								<button onClick={this.handleNewGameButton}>New Game</button>
+								<button onClick={this.handleChangeModeButton}>{this.state.mode}</button>
 								<button onClick={this.handleChangeInputButton}>{this.state.currentInputType === "RGB" ? "to Hex" : "to RGB"}</button>
 							</div>
 							<RGBInput
@@ -407,8 +432,10 @@ export default class Main extends Component {
 								g={this.state.g}
 								b={this.state.b}
 								RGBArrowsStyle={this.state.RGBArrowsStyle}
+								inputType={this.state.currentInputType}
 							/>
-							<div className="gtr-ui-buttons">
+							<div className="gtr-ui-buttons gtr-ui-buttons-vertical">
+								{this.state.mode === 'Hard' && <button ref={this.inputRefs.submitButton} onClick={this.handleSubmission} >Submit</button>}
 								{this.state.userMessage}
 							</div>
 						</div>
@@ -448,13 +475,11 @@ class RGBInput extends Component {
 								}
 								if (evt.key === "ArrowUp") {
 									evt.preventDefault();
-									this.inputRefs.r.current.value++;
-									this.props.setRGBValue(evt, "r");
+									this.props.setRGBValue(evt, "r", "inc");
 								}
 								if (evt.key === "ArrowDown") {
 									evt.preventDefault();
-									evt.target.value--;
-									this.props.setRGBValue(evt, "r");
+									this.props.setRGBValue(evt, "r", "dec");
 								}
 							}
 						}
@@ -478,13 +503,11 @@ class RGBInput extends Component {
 								}
 								if (evt.key === "ArrowUp") {
 									evt.preventDefault();
-									this.inputRefs.g.current.value++;
-									this.props.setRGBValue(evt, "g");
+									this.props.setRGBValue(evt, "g", "inc");
 								}
 								if (evt.key === "ArrowDown") {
 									evt.preventDefault();
-									this.inputRefs.g.current.value--;
-									this.props.setRGBValue(evt, "g");
+									this.props.setRGBValue(evt, "g", "dec");
 								}
 							}
 						}
@@ -504,17 +527,15 @@ class RGBInput extends Component {
 									if (evt.shiftKey)
 										this.inputRefs.g.current.focus();
 									else
-										this.inputRefs.r.current.focus();
+										this.inputRefs.submitButton.current.click();
 								}
 								if (evt.key === "ArrowUp") {
 									evt.preventDefault();
-									this.inputRefs.b.current.value++;
-									this.props.setRGBValue(evt, "b");
+									this.props.setRGBValue(evt, "b", "inc");
 								}
 								if (evt.key === "ArrowDown") {
 									evt.preventDefault();
-									this.inputRefs.b.current.value--;
-									this.props.setRGBValue(evt, "b");
+									this.props.setRGBValue(evt, "b", "dec");
 								}
 							}
 						}

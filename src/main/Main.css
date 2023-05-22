@@ -21,14 +21,14 @@
 
 .gtr-display-container {
     width: 100%;
-    height: 50%;
+    height: 45%;
 
     position: relative;
 }
 
 .gtr-display {
-    width: 15em;
-    height: 15em;
+    width: 11.5em;
+    height: 11.5em;
 
     position: absolute;
     margin: auto;
@@ -37,28 +37,32 @@
     bottom: 0;
     right: 0;
 
+    font-size: var(--h2-font-size);
+
     border-radius: 30px;
 
     transition: 0.4s ease;
 }
 
 .gtr-subdisplay {
-    width: 4em;
-    height: 4em;
+    width: 2.5em;
+    height: 2.5em;
 
     position: absolute;
     margin: auto;
-    top: 12.5em;
-    left: 12.5em;
+    top: 10.5em;
+    left: 10.5em;
     bottom: 0;
     right: 0;
 
-    border-radius: 20px;
+    border-radius: 18px;
 }
 
 .gtr-ui-container {
     width: min(100%, 500px);
     height: 50%;
+
+    flex-grow: 1;
 }
 
 .gtr-ui-buttons {
@@ -73,11 +77,15 @@
     justify-content: center;
 }
 
+.gtr-ui-buttons-vertical {
+    flex-direction: column;
+}
+
 .gtr-ui-buttons > button {
-    width: 8em;
+    width: auto;
     height: auto;
 
-    margin: 0px 10px;
+    margin: 0px 5px;
     padding: 14px;
 
     outline: transparent;
@@ -95,6 +103,10 @@
     cursor: pointer;
 
     user-select: none;
+}
+
+.gtr-ui-buttons-vertical > button {
+    margin: 10px 10px;
 }
 
 .gtr-ui-buttons > button:hover {
@@ -144,5 +156,18 @@
 @media screen and (max-width: 600px) {
     .gtr-ui-input-container {
         gap: 0.2em;
+    }
+
+    .gtr-display {
+        font-size: var(--h4-font-size);
+    }
+
+    .gtr-ui-buttons {
+        font-size: var(--h5-font-size);
+    }
+
+    .gtr-ui-buttons > button {
+        font-size: var(--h5-font-size);
+        padding: 10px;
     }
 }
