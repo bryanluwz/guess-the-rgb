@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { Component, createRef } from "react";
 import { ContentDisplay } from "../components/others/";
 import { setCookieValue, getCookieValue } from "../components/utils/cookieMonster";
 
@@ -36,6 +36,12 @@ export default class Main extends Component {
 
 		this.arrowColor = "red";
 		this.cookieName = "guessTheRGB";
+
+		this.inputRefs = {
+			r: createRef(),
+			g: createRef(),
+			b: createRef()
+		};
 	}
 
 	componentDidMount() {
@@ -208,7 +214,7 @@ export default class Main extends Component {
 			const rgbInputValue = parseInt(inputValue);
 			const { currentRGBValue } = this.state;
 
-			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") return;
+			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") evt.preventDefault();
 
 			if (inputValue === "") {
 				this.setState({ [color]: "" });
@@ -232,7 +238,7 @@ export default class Main extends Component {
 			const rgbInputValue = this.hexToDec(inputValue); // It is in hex now
 			const { currentRGBValue } = this.state;
 
-			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") return;
+			if (!this.checkRGBInRange(rgbInputValue) && inputValue !== "") evt.preventDefault();
 
 			if (inputValue === "") {
 				this.setState({ [color]: "" });
@@ -243,7 +249,6 @@ export default class Main extends Component {
 			}
 
 			const { r, g, b } = currentRGBValue;
-
 			this.setState({
 				currentRGBValue: currentRGBValue,
 				currentCSSColor: this.createCSSColorStringFromRGBValue(r, g, b)
@@ -254,7 +259,7 @@ export default class Main extends Component {
 	};
 
 	checkRGBInRange(val, min = 0, max = 255) {
-		return !isNaN(val) && min <= val && val <= max;
+		return !isNaN(val) && (min <= val) && (val <= max);
 	}
 
 	hexToDec = (hex) => {
@@ -322,7 +327,13 @@ export default class Main extends Component {
 		// Handles user message and success bool
 		var userMessage = "";
 		var success = false;
-		if (result === "wonderful") {
+
+
+		if (result === "fantastic") {
+			userMessage = "😲 perfect 🥴";
+			success = true;
+		}
+		else if (result === "wonderful") {
 			userMessage = "🤩 wonderful!!";
 			success = true;
 		}
@@ -340,7 +351,11 @@ export default class Main extends Component {
 		const gDiff = Math.abs(targetRGB.g - currentRGB.g);
 		const bDiff = Math.abs(targetRGB.b - currentRGB.b);
 
-		if (rDiff <= veryGoodThreshold && gDiff <= veryGoodThreshold && bDiff <= veryGoodThreshold) {
+		if (rDiff === 0 && gDiff === 0 && bDiff === 0) {
+			return "fantastic";
+		}
+
+		else if (rDiff <= veryGoodThreshold && gDiff <= veryGoodThreshold && bDiff <= veryGoodThreshold) {
 			return "wonderful";
 		}
 
@@ -383,9 +398,10 @@ export default class Main extends Component {
 						<div className="gtr-ui-container">
 							<div className="gtr-ui-buttons">
 								<button onClick={this.handleNewGameButton}>New Game</button>
-								<button onClick={this.handleChangeInputButton}>{this.state.currentInputType}</button>
+								<button onClick={this.handleChangeInputButton}>{this.state.currentInputType === "RGB" ? "to Hex" : "to RGB"}</button>
 							</div>
 							<RGBInput
+								inputRefs={this.inputRefs}
 								setRGBValue={this.setRGBValue}
 								r={this.state.r}
 								g={this.state.g}
@@ -406,6 +422,11 @@ export default class Main extends Component {
 Main.displayName = "Guess the RGB";
 
 class RGBInput extends Component {
+	constructor(props) {
+		super(props);
+		this.inputRefs = this.props.inputRefs;
+	}
+
 	render() {
 		const { rArrowUp, rArrowDown, gArrowUp, gArrowDown, bArrowUp, bArrowDown } = this.props.RGBArrowsStyle;
 
@@ -414,7 +435,29 @@ class RGBInput extends Component {
 				<div className="gtr-ui-input" >
 					<i className="fa fa-sort-up" style={rArrowUp} />
 					<input
+						ref={this.inputRefs.r}
 						value={this.props.r}
+						onKeyDown={
+							(evt) => {
+								if (evt.key === "Enter") {
+									evt.preventDefault();
+									if (evt.shiftKey)
+										this.inputRefs.b.current.focus();
+									else
+										this.inputRefs.g.current.focus();
+								}
+								if (evt.key === "ArrowUp") {
+									evt.preventDefault();
+									this.inputRefs.r.current.value++;
+									this.props.setRGBValue(evt, "r");
+								}
+								if (evt.key === "ArrowDown") {
+									evt.preventDefault();
+									evt.target.value--;
+									this.props.setRGBValue(evt, "r");
+								}
+							}
+						}
 						onChange={(evt) => { this.props.setRGBValue(evt, "r"); }}
 					/>
 					<i className="fa fa-sort-down" style={rArrowDown} />
@@ -422,7 +465,29 @@ class RGBInput extends Component {
 				<div className="gtr-ui-input" >
 					<i className="fa fa-sort-up" style={gArrowUp} />
 					<input
+						ref={this.inputRefs.g}
 						value={this.props.g}
+						onKeyDown={
+							(evt) => {
+								if (evt.key === "Enter") {
+									evt.preventDefault();
+									if (evt.shiftKey)
+										this.inputRefs.r.current.focus();
+									else
+										this.inputRefs.b.current.focus();
+								}
+								if (evt.key === "ArrowUp") {
+									evt.preventDefault();
+									this.inputRefs.g.current.value++;
+									this.props.setRGBValue(evt, "g");
+								}
+								if (evt.key === "ArrowDown") {
+									evt.preventDefault();
+									this.inputRefs.g.current.value--;
+									this.props.setRGBValue(evt, "g");
+								}
+							}
+						}
 						onChange={(evt) => { this.props.setRGBValue(evt, "g"); }}
 					/>
 					<i className="fa fa-sort-down" style={gArrowDown} />
@@ -430,7 +495,29 @@ class RGBInput extends Component {
 				<div className="gtr-ui-input" >
 					<i className="fa fa-sort-up" style={bArrowUp} />
 					<input
+						ref={this.inputRefs.b}
 						value={this.props.b}
+						onKeyDown={
+							(evt) => {
+								if (evt.key === "Enter") {
+									evt.preventDefault();
+									if (evt.shiftKey)
+										this.inputRefs.g.current.focus();
+									else
+										this.inputRefs.r.current.focus();
+								}
+								if (evt.key === "ArrowUp") {
+									evt.preventDefault();
+									this.inputRefs.b.current.value++;
+									this.props.setRGBValue(evt, "b");
+								}
+								if (evt.key === "ArrowDown") {
+									evt.preventDefault();
+									this.inputRefs.b.current.value--;
+									this.props.setRGBValue(evt, "b");
+								}
+							}
+						}
 						onChange={(evt) => { this.props.setRGBValue(evt, "b"); }}
 					/>
 					<i className="fa fa-sort-down" style={bArrowDown} />

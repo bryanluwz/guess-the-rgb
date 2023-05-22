@@ -93,6 +93,8 @@
     transition: 0.4s ease;
 
     cursor: pointer;
+
+    user-select: none;
 }
 
 .gtr-ui-buttons > button:hover {
